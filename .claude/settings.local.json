@@ -12,7 +12,10 @@
       "Bash(npx shadcn@latest add table select textarea sonner tooltip)",
       "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3000/clientes)",
       "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3001/clientes)",
-      "Bash(npx shadcn@latest add checkbox)"
+      "Bash(npx shadcn@latest add checkbox)",
+      "Bash(mkdir -p \"c:/Users/FRANCOT/Desktop/personales/argwebdesign/crm-argwedesign/app/formulario/[slug]/gracias\")",
+      "Bash(cp -r \"c:/Users/FRANCOT/Desktop/personales/argwebdesign/crm-argwedesign/app/onboarding/[slug]/.\" \"c:/Users/FRANCOT/Desktop/personales/argwebdesign/crm-argwedesign/app/formulario/[slug]/\")",
+      "Bash(rm -rf \"c:/Users/FRANCOT/Desktop/personales/argwebdesign/crm-argwedesign/app/onboarding/[slug]\")"
     ]
   }
 }

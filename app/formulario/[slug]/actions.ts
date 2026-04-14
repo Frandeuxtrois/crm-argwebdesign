@@ -53,5 +53,5 @@ export async function enviarOnboarding(slug: string, formData: FormData) {
 
   if (error) throw new Error(error.message)
 
-  redirect(`/onboarding/${slug}/gracias`)
+  redirect(`/formulario/${slug}/gracias`)
 }
