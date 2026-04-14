@@ -2,6 +2,12 @@ import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
 export async function middleware(request: NextRequest) {
+  // Los Server Actions son POST con el header 'next-action'.
+  // Dejarlos pasar sin modificar para evitar interferencia con la respuesta.
+  if (request.headers.get('next-action') !== null) {
+    return NextResponse.next()
+  }
+
   let supabaseResponse = NextResponse.next({ request })
 
   const supabase = createServerClient(
