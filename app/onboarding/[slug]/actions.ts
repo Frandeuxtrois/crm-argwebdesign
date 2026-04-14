@@ -1,0 +1,57 @@
+'use server'
+
+import { redirect } from 'next/navigation'
+import { createClient } from '@/lib/supabase/server'
+
+export async function enviarOnboarding(slug: string, formData: FormData) {
+  const supabase = await createClient()
+
+  // Buscar el workspace por slug
+  const { data: workspace } = await supabase
+    .from('workspaces')
+    .select('id')
+    .eq('slug', slug)
+    .is('deleted_at', null)
+    .single()
+
+  if (!workspace) throw new Error('Formulario no disponible.')
+
+  // Armar el objeto de respuestas desde el formulario
+  const respuestas = {
+    nombre:                  formData.get('nombre'),
+    email:                   formData.get('email'),
+    whatsapp:                formData.get('whatsapp'),
+    marca:                   formData.get('marca'),
+    cliente_ideal:           formData.get('cliente_ideal'),
+    diferenciacion:          formData.get('diferenciacion'),
+    referencias_webs:        formData.get('referencias_webs'),
+    descripcion_negocio:     formData.get('descripcion_negocio'),
+    plan:                    formData.get('plan'),
+    tiene_dominio:           formData.get('tiene_dominio'),
+    tiene_hosting:           formData.get('tiene_hosting'),
+    tiene_logo:              formData.get('tiene_logo'),
+    colores_preferencia:     formData.get('colores_preferencia'),
+    colores_evitar:          formData.get('colores_evitar'),
+    estilo_visual:           formData.get('estilo_visual'),
+    secciones:               formData.getAll('secciones'),   // array de checkboxes
+    textos_secciones:        formData.get('textos_secciones'),
+    redes_sociales:          formData.get('redes_sociales'),
+    funcionalidades:         formData.get('funcionalidades'),
+    fotos_drive:             formData.get('fotos_drive'),
+    testimonios:             formData.get('testimonios'),
+    comentarios:             formData.get('comentarios'),
+    autoriza_portfolio:      formData.get('autoriza_portfolio'),
+  }
+
+  const { error } = await supabase
+    .from('onboarding')
+    .insert({
+      workspace_id: workspace.id,
+      respuestas,
+      procesado: false,
+    })
+
+  if (error) throw new Error(error.message)
+
+  redirect(`/onboarding/${slug}/gracias`)
+}

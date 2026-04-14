@@ -80,7 +80,7 @@ CREATE TABLE IF NOT EXISTS proyectos (
   cliente_id    UUID NOT NULL REFERENCES clientes(id) ON DELETE CASCADE,
   nombre        TEXT NOT NULL,
   plan          TEXT NOT NULL
-                CHECK (plan IN ('express', 'basico', 'pro')),
+                CHECK (plan IN ('express', 'landing', 'economica', 'autogestionable', 'ecommerce_basico', 'ecommerce_full', 'personalizada')),
   precio_total  NUMERIC(12, 2) NOT NULL,
   fecha_inicio  DATE,
   fecha_entrega DATE,

@@ -98,7 +98,7 @@ Datos de cada cliente del negocio.
 ### proyectos
 Un cliente puede tener múltiples proyectos.
 - workspace_id (FK), id, cliente_id (FK)
-- nombre, plan (express/basico/pro), precio_total
+- nombre, plan (express/landing/economica/autogestionable/ecommerce_basico/ecommerce_full/personalizada), precio_total
 - fecha_inicio, fecha_entrega
 - estado (onboarding/en_desarrollo/revision/entregado/pausado)
 - progreso (0-100), url_proyecto, notas
