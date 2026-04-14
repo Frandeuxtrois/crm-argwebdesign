@@ -15,7 +15,8 @@
       "Bash(npx shadcn@latest add checkbox)",
       "Bash(mkdir -p \"c:/Users/FRANCOT/Desktop/personales/argwebdesign/crm-argwedesign/app/formulario/[slug]/gracias\")",
       "Bash(cp -r \"c:/Users/FRANCOT/Desktop/personales/argwebdesign/crm-argwedesign/app/onboarding/[slug]/.\" \"c:/Users/FRANCOT/Desktop/personales/argwebdesign/crm-argwedesign/app/formulario/[slug]/\")",
-      "Bash(rm -rf \"c:/Users/FRANCOT/Desktop/personales/argwebdesign/crm-argwedesign/app/onboarding/[slug]\")"
+      "Bash(rm -rf \"c:/Users/FRANCOT/Desktop/personales/argwebdesign/crm-argwedesign/app/onboarding/[slug]\")",
+      "Bash(npx shadcn@latest add progress)"
     ]
   }
 }
