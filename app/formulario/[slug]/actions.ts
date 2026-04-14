@@ -1,10 +1,10 @@
 'use server'
 
 import { redirect } from 'next/navigation'
-import { createClient } from '@/lib/supabase/server'
+import { createAnonClient } from '@/lib/supabase/anon'
 
 export async function enviarOnboarding(slug: string, formData: FormData) {
-  const supabase = await createClient()
+  const supabase = createAnonClient()
 
   // Buscar el workspace por slug
   const { data: workspace } = await supabase

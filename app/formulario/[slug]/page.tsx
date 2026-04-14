@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation'
-import { createClient } from '@/lib/supabase/server'
+import { createAnonClient } from '@/lib/supabase/anon'
 import { enviarOnboarding } from './actions'
 
 const secciones = [
@@ -37,7 +37,7 @@ export default async function OnboardingPage({
   params: Promise<{ slug: string }>
 }) {
   const { slug } = await params
-  const supabase = await createClient()
+  const supabase = createAnonClient()
 
   // Verificar que el workspace existe
   const { data: workspace } = await supabase
