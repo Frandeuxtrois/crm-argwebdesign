@@ -48,13 +48,6 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(loginUrl)
   }
 
-  // Si ya está logueado e intenta ir al login → redirigir al dashboard
-  if (user && pathname === '/login') {
-    const dashboardUrl = request.nextUrl.clone()
-    dashboardUrl.pathname = '/dashboard'
-    return NextResponse.redirect(dashboardUrl)
-  }
-
   return supabaseResponse
 }
 
