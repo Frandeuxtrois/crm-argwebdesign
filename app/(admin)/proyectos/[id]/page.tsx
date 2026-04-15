@@ -71,7 +71,7 @@ export default async function ProyectoDetallePage({
     supabase.from('checklist_items').select('*').eq('proyecto_id', id).eq('workspace_id', workspaceId).is('deleted_at', null).order('orden'),
     supabase.from('pagos').select('id, monto, estado, tipo').eq('proyecto_id', id).eq('workspace_id', workspaceId).is('deleted_at', null).order('created_at', { ascending: false }),
     supabase.from('vencimientos').select('id, tipo, descripcion, fecha_vencimiento, estado, monto').eq('proyecto_id', id).eq('workspace_id', workspaceId).is('deleted_at', null).order('fecha_vencimiento', { ascending: true }),
-    supabase.from('documentos').select('id, nombre, ruta, tipo, tamaño, created_at').eq('proyecto_id', id).eq('workspace_id', workspaceId).is('deleted_at', null).order('created_at', { ascending: false }),
+    supabase.from('documentos').select('*').eq('proyecto_id', id).eq('workspace_id', workspaceId).is('deleted_at', null).order('created_at', { ascending: false }),
   ])
 
   if (!proyecto) notFound()

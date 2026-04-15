@@ -11,8 +11,8 @@ type Documento = {
   nombre: string
   ruta: string
   tipo: string | null
-  tamaño: number | null
   created_at: string
+  [key: string]: unknown
 }
 
 function formatBytes(bytes: number) {
@@ -71,7 +71,7 @@ export function DocumentosPanel({
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-gray-900 truncate">{doc.nombre}</p>
                   <p className="text-xs text-gray-400">
-                    {doc.tamaño ? formatBytes(doc.tamaño) : ''} · {new Date(doc.created_at).toLocaleDateString('es-AR')}
+                    {doc['tamaño'] ? formatBytes(doc['tamaño'] as number) : ''} · {new Date(doc.created_at).toLocaleDateString('es-AR')}
                   </p>
                 </div>
                 <div className="flex items-center gap-1 shrink-0">
