@@ -1,7 +1,7 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   // Los Server Actions son POST con el header 'next-action'.
   // Dejarlos pasar sin modificar para evitar interferencia con la respuesta.
   if (request.headers.get('next-action') !== null) {
@@ -42,7 +42,8 @@ export async function middleware(request: NextRequest) {
       !user && pathname.startsWith('/proyectos') ||
       !user && pathname.startsWith('/pagos') ||
       !user && pathname.startsWith('/vencimientos') ||
-      !user && pathname.startsWith('/onboarding')) {
+      !user && pathname.startsWith('/onboarding') ||
+      !user && pathname.startsWith('/configuracion')) {
     const loginUrl = request.nextUrl.clone()
     loginUrl.pathname = '/login'
     return NextResponse.redirect(loginUrl)
@@ -53,7 +54,6 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    // Aplica a todas las rutas excepto assets estáticos y archivos de Next.js
     '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
 }

@@ -25,6 +25,22 @@ export async function crearPago(formData: FormData) {
   redirect('/pagos')
 }
 
+export async function eliminarPago(id: string) {
+  const supabase = await createClient()
+  const workspaceId = await getWorkspaceId()
+
+  const { error } = await supabase
+    .from('pagos')
+    .update({ deleted_at: new Date().toISOString() })
+    .eq('id', id)
+    .eq('workspace_id', workspaceId)
+
+  if (error) throw new Error(error.message)
+
+  revalidatePath('/pagos')
+  redirect('/pagos')
+}
+
 export async function editarPago(id: string, formData: FormData) {
   const supabase = await createClient()
   const workspaceId = await getWorkspaceId()

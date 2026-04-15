@@ -25,7 +25,6 @@ const planes = [
 
 const estilos = ['Minimalista', 'Moderno', 'Elegante', 'Divertido', 'Corporativo', 'Artesanal']
 
-// Clases reutilizables para el tema oscuro
 const inputClass = "w-full rounded-md bg-zinc-800 border border-zinc-700 px-3 py-2 text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-white/20 focus:border-zinc-500"
 const labelClass = "block text-sm font-medium text-zinc-300 mb-1.5"
 const sectionClass = "space-y-5 bg-zinc-900 rounded-xl p-6 border border-zinc-800"
@@ -34,22 +33,22 @@ const sectionTitleClass = "text-base font-semibold text-white mb-4 pb-3 border-b
 export default async function OnboardingPage({
   params,
 }: {
-  params: Promise<{ slug: string }>
+  params: Promise<{ id: string }>
 }) {
-  const { slug } = await params
+  const { id } = await params
   const supabase = createAnonClient()
 
-  // Verificar que el workspace existe
+  // Verificar que el workspace existe por ID
   const { data: workspace } = await supabase
     .from('workspaces')
     .select('id, nombre')
-    .eq('slug', slug)
+    .eq('id', id)
     .is('deleted_at', null)
     .single()
 
   if (!workspace) notFound()
 
-  const action = enviarOnboarding.bind(null, slug)
+  const action = enviarOnboarding.bind(null, id)
 
   return (
     <div className="space-y-8">
@@ -121,26 +120,18 @@ export default async function OnboardingPage({
         <div className={sectionClass}>
           <p className={sectionTitleClass}>El proyecto</p>
 
-          {/* Plan */}
           <div>
             <p className={labelClass}>¿Qué plan elegiste? *</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {planes.map((p) => (
                 <label key={p.value} className="flex items-center gap-2.5 cursor-pointer group">
-                  <input
-                    type="radio"
-                    name="plan"
-                    value={p.value}
-                    required
-                    className="accent-white"
-                  />
+                  <input type="radio" name="plan" value={p.value} required className="accent-white" />
                   <span className="text-sm text-zinc-300 group-hover:text-white transition-colors">{p.label}</span>
                 </label>
               ))}
             </div>
           </div>
 
-          {/* Dominio */}
           <div>
             <p className={labelClass}>¿Ya tenés el dominio registrado?</p>
             <div className="space-y-2">
@@ -156,7 +147,6 @@ export default async function OnboardingPage({
             </div>
           </div>
 
-          {/* Hosting */}
           <div>
             <p className={labelClass}>¿Ya tenés hosting contratado?</p>
             <div className="space-y-2">
@@ -172,7 +162,6 @@ export default async function OnboardingPage({
             </div>
           </div>
 
-          {/* Logo */}
           <div>
             <p className={labelClass}>¿Tenés logo profesional? *</p>
             <div className="space-y-2">
@@ -204,7 +193,6 @@ export default async function OnboardingPage({
             </div>
           </div>
 
-          {/* Estilo visual */}
           <div>
             <p className={labelClass}>Estilo visual deseado *</p>
             <div className="flex flex-wrap gap-2">
@@ -217,7 +205,6 @@ export default async function OnboardingPage({
             </div>
           </div>
 
-          {/* Secciones */}
           <div>
             <p className={labelClass}>¿Qué secciones principales necesitás?</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -265,7 +252,6 @@ export default async function OnboardingPage({
         <div className={sectionClass}>
           <p className={sectionTitleClass}>Confirmaciones</p>
 
-          {/* Portfolio */}
           <div>
             <p className={labelClass}>¿Autorizás el uso del proyecto en el portfolio? *</p>
             <div className="space-y-2">
@@ -281,7 +267,6 @@ export default async function OnboardingPage({
             </div>
           </div>
 
-          {/* Plazo */}
           <label className="flex items-start gap-3 cursor-pointer">
             <input type="checkbox" name="confirma_plazo" value="si" required className="accent-white mt-0.5 shrink-0" />
             <span className="text-sm text-zinc-300 leading-relaxed">

@@ -8,8 +8,8 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Badge } from '@/components/ui/badge'
-import { editarPago } from '../actions'
-import { ArrowLeft } from 'lucide-react'
+import { editarPago, eliminarPago } from '../actions'
+import { ArrowLeft, Trash2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const estadoConfig: Record<string, { label: string; variant: 'default' | 'secondary' | 'outline'; className?: string }> = {
@@ -43,6 +43,7 @@ export default async function PagoDetallePage({
 
   const proyecto = pago.proyectos as { nombre: string; clientes: { nombre: string; marca: string } | null } | null
   const editarConId = editarPago.bind(null, id)
+  const eliminarConId = eliminarPago.bind(null, id)
   const config = estadoConfig[pago.estado] ?? estadoConfig.pendiente
 
   return (
@@ -60,6 +61,16 @@ export default async function PagoDetallePage({
             {proyecto?.clientes?.marca} — {proyecto?.nombre}
           </p>
         </div>
+        <form action={eliminarConId}>
+          <Button
+            type="submit"
+            variant="ghost"
+            size="icon"
+            className="text-red-400 hover:text-red-600 hover:bg-red-50"
+          >
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        </form>
       </div>
 
       <form action={editarConId} className="bg-white rounded-lg border p-6 space-y-5">

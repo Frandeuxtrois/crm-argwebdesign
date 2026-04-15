@@ -138,18 +138,18 @@ export function Sidebar() {
 
       {/* Footer del sidebar */}
       <div className="px-3 py-4 border-t border-gray-700">
-        <div
-          className="flex items-center gap-3 px-3 py-2 rounded-md text-sm text-gray-600 cursor-not-allowed"
+        <Link
+          href="/configuracion"
+          className={cn(
+            'flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors',
+            pathname === '/configuracion'
+              ? 'bg-gray-700 text-white font-medium'
+              : 'text-gray-400 hover:bg-gray-800 hover:text-gray-100'
+          )}
         >
           <Settings className="h-4 w-4 shrink-0" />
-          <span className="flex-1">Plan</span>
-          <Badge
-            variant="outline"
-            className="text-xs border-gray-700 text-gray-600 px-1.5 py-0"
-          >
-            Sprint 12
-          </Badge>
-        </div>
+          Configuración
+        </Link>
       </div>
     </aside>
   )

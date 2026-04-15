@@ -11,8 +11,12 @@ import { Progress } from '@/components/ui/progress'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { ChecklistItem } from '@/components/proyectos/checklist-item'
 import { editarProyecto, agregarChecklistItem } from '../actions'
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, CreditCard, CalendarClock, Plus } from 'lucide-react'
 import { cn } from '@/lib/utils'
+
+function formatARS(monto: number) {
+  return new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 }).format(monto)
+}
 
 const planes = [
   { value: 'express',          label: 'Web Express' },
@@ -55,25 +59,25 @@ export default async function ProyectoDetallePage({
   const supabase = await createClient()
   const workspaceId = await getWorkspaceId()
 
-  const { data: proyecto } = await supabase
-    .from('proyectos')
-    .select('*, clientes(nombre, marca, email)')
-    .eq('id', id)
-    .eq('workspace_id', workspaceId)
-    .is('deleted_at', null)
-    .single()
+  const [
+    { data: proyecto },
+    { data: items },
+    { data: pagos },
+    { data: vencimientos },
+  ] = await Promise.all([
+    supabase.from('proyectos').select('*, clientes(id, nombre, marca, email)').eq('id', id).eq('workspace_id', workspaceId).is('deleted_at', null).single(),
+    supabase.from('checklist_items').select('*').eq('proyecto_id', id).eq('workspace_id', workspaceId).is('deleted_at', null).order('orden'),
+    supabase.from('pagos').select('id, monto, estado, tipo').eq('proyecto_id', id).eq('workspace_id', workspaceId).is('deleted_at', null).order('created_at', { ascending: false }),
+    supabase.from('vencimientos').select('id, tipo, descripcion, fecha_vencimiento, estado, monto').eq('proyecto_id', id).eq('workspace_id', workspaceId).is('deleted_at', null).order('fecha_vencimiento', { ascending: true }),
+  ])
 
   if (!proyecto) notFound()
 
-  const { data: items } = await supabase
-    .from('checklist_items')
-    .select('*')
-    .eq('proyecto_id', id)
-    .eq('workspace_id', workspaceId)
-    .is('deleted_at', null)
-    .order('orden')
+  const hoy = Date.now()
+  const totalCobrado = pagos?.filter(p => p.estado === 'pagado').reduce((s, p) => s + p.monto, 0) ?? 0
+  const totalPendiente = pagos?.filter(p => p.estado === 'pendiente').reduce((s, p) => s + p.monto, 0) ?? 0
 
-  const cliente = proyecto.clientes as { nombre: string; marca: string; email: string } | null
+  const cliente = proyecto.clientes as { id: string; nombre: string; marca: string; email: string } | null
   const editarConId = editarProyecto.bind(null, id)
   const agregarItemConId = agregarChecklistItem.bind(null, id)
 
@@ -94,7 +98,13 @@ export default async function ProyectoDetallePage({
           <div className="flex items-center gap-3">
             <h2 className="text-2xl font-semibold text-gray-900">{proyecto.nombre}</h2>
           </div>
-          <p className="text-sm text-gray-500">{cliente?.marca} — {cliente?.nombre}</p>
+          {cliente ? (
+            <Link href={`/clientes/${cliente.id}`} className="text-sm text-gray-500 hover:text-gray-800 transition-colors">
+              {cliente.marca} — {cliente.nombre}
+            </Link>
+          ) : (
+            <p className="text-sm text-gray-500">Sin cliente</p>
+          )}
         </div>
       </div>
 
@@ -218,6 +228,82 @@ export default async function ProyectoDetallePage({
             </div>
           ))}
         </div>
+      </div>
+
+      {/* Pagos y vencimientos del proyecto */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+        {/* Pagos */}
+        <div className="bg-white rounded-lg border overflow-hidden">
+          <div className="flex items-center justify-between px-4 py-3 border-b">
+            <div className="flex items-center gap-2 text-sm font-semibold text-gray-700">
+              <CreditCard className="h-4 w-4 text-gray-400" />
+              Pagos
+              {pagos && pagos.length > 0 && (
+                <span className="text-xs font-normal text-gray-400 ml-1">
+                  {formatARS(totalCobrado)} cobrado · {formatARS(totalPendiente)} pendiente
+                </span>
+              )}
+            </div>
+            <Link href="/pagos/nuevo" className={cn(buttonVariants({ variant: 'ghost', size: 'sm' }), 'text-xs h-7')}>
+              <Plus className="h-3 w-3 mr-1" />Nuevo
+            </Link>
+          </div>
+          {!pagos?.length ? (
+            <p className="px-4 py-6 text-sm text-gray-400 text-center">Sin pagos registrados</p>
+          ) : (
+            <div className="divide-y">
+              {pagos.map((p) => (
+                <Link key={p.id} href={`/pagos/${p.id}`} className="flex items-center justify-between px-4 py-3 hover:bg-gray-50 transition-colors">
+                  <p className="text-sm font-medium text-gray-900 capitalize">{p.tipo}</p>
+                  <div className="text-right">
+                    <p className={cn('text-sm font-semibold', p.estado === 'pagado' ? 'text-green-600' : p.estado === 'vencido' ? 'text-red-500' : 'text-amber-600')}>
+                      {formatARS(p.monto)}
+                    </p>
+                    <p className="text-xs text-gray-400 capitalize">{p.estado}</p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Vencimientos */}
+        <div className="bg-white rounded-lg border overflow-hidden">
+          <div className="flex items-center justify-between px-4 py-3 border-b">
+            <div className="flex items-center gap-2 text-sm font-semibold text-gray-700">
+              <CalendarClock className="h-4 w-4 text-gray-400" />
+              Vencimientos
+            </div>
+            <Link href="/vencimientos/nuevo" className={cn(buttonVariants({ variant: 'ghost', size: 'sm' }), 'text-xs h-7')}>
+              <Plus className="h-3 w-3 mr-1" />Nuevo
+            </Link>
+          </div>
+          {!vencimientos?.length ? (
+            <p className="px-4 py-6 text-sm text-gray-400 text-center">Sin vencimientos</p>
+          ) : (
+            <div className="divide-y">
+              {vencimientos.map((v) => {
+                const dias = Math.ceil((new Date(v.fecha_vencimiento).getTime() - hoy) / 86400000)
+                return (
+                  <Link key={v.id} href={`/vencimientos/${v.id}`} className="flex items-center justify-between px-4 py-3 hover:bg-gray-50 transition-colors">
+                    <div>
+                      <p className="text-sm font-medium text-gray-900 capitalize">{v.tipo}</p>
+                      <p className="text-xs text-gray-400">{v.descripcion ?? new Date(v.fecha_vencimiento).toLocaleDateString('es-AR')}</p>
+                    </div>
+                    <div className="text-right">
+                      {v.monto && <p className="text-sm font-medium text-gray-700">{formatARS(v.monto)}</p>}
+                      <p className={cn('text-xs font-semibold', v.estado !== 'activo' ? 'text-gray-400' : dias < 0 ? 'text-red-500' : dias <= 7 ? 'text-red-500' : dias <= 30 ? 'text-amber-500' : 'text-gray-400')}>
+                        {v.estado !== 'activo' ? v.estado : dias < 0 ? 'Vencido' : dias === 0 ? 'Hoy' : `${dias}d`}
+                      </p>
+                    </div>
+                  </Link>
+                )
+              })}
+            </div>
+          )}
+        </div>
+
       </div>
     </div>
   )

@@ -4,8 +4,9 @@ import { getWorkspaceId } from '@/lib/workspace'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
 import { buttonVariants } from '@/components/ui/button'
-import { Users, FolderKanban, CreditCard, CalendarClock, ArrowRight } from 'lucide-react'
+import { Users, FolderKanban, CreditCard, CalendarClock, ArrowRight, Link2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { CopyFormLink } from '@/components/dashboard/copy-form-link'
 
 function formatARS(monto: number) {
   return new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 }).format(monto)
@@ -96,6 +97,15 @@ export default async function DashboardPage() {
             {vencimientosProximos.length}
           </p>
         </Link>
+      </div>
+
+      {/* Link del formulario de onboarding */}
+      <div className="bg-white rounded-lg border px-5 py-4 space-y-2">
+        <div className="flex items-center gap-2 text-sm font-medium text-gray-700">
+          <Link2 className="h-4 w-4 text-gray-400" />
+          Link para enviar a nuevos clientes
+        </div>
+        <CopyFormLink workspaceId={workspaceId} />
       </div>
 
       {/* Alerta de onboardings pendientes */}

@@ -40,6 +40,39 @@ export async function procesarOnboarding(id: string) {
 
   if (clienteError || !nuevoCliente) throw new Error(clienteError?.message ?? 'Error al crear cliente.')
 
+  // Crear el proyecto con los datos del onboarding
+  const planLabel: Record<string, string> = {
+    express:          'Web Express',
+    landing:          'Landing Page',
+    economica:        'Económica',
+    autogestionable:  'Auto-Gestionable',
+    ecommerce_basico: 'E-commerce Básico',
+    ecommerce_full:   'E-commerce Full',
+    personalizada:    'Personalizada',
+  }
+  const plan = r.plan as string
+  const nombreProyecto = `${r.marca} — ${planLabel[plan] ?? plan}`
+
+  const fechaInicio = entrada.created_at
+    ? new Date(entrada.created_at).toISOString().split('T')[0]
+    : new Date().toISOString().split('T')[0]
+
+  const { data: nuevoProyecto, error: proyectoError } = await supabase
+    .from('proyectos')
+    .insert({
+      workspace_id: workspaceId,
+      cliente_id:   nuevoCliente.id,
+      nombre:       nombreProyecto,
+      plan:         plan,
+      fecha_inicio: fechaInicio,
+      estado:       'onboarding',
+      progreso:     0,
+    })
+    .select('id')
+    .single()
+
+  if (proyectoError || !nuevoProyecto) throw new Error(proyectoError?.message ?? 'Error al crear proyecto.')
+
   // Marcar el onboarding como procesado y vincular al cliente
   await supabase
     .from('onboarding')
@@ -47,5 +80,6 @@ export async function procesarOnboarding(id: string) {
     .eq('id', id)
 
   revalidatePath('/onboarding')
-  redirect(`/clientes/${nuevoCliente.id}`)
+  revalidatePath('/proyectos')
+  redirect(`/proyectos/${nuevoProyecto.id}`)
 }

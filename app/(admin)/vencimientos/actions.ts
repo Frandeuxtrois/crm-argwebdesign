@@ -26,6 +26,22 @@ export async function crearVencimiento(formData: FormData) {
   redirect('/vencimientos')
 }
 
+export async function eliminarVencimiento(id: string) {
+  const supabase = await createClient()
+  const workspaceId = await getWorkspaceId()
+
+  const { error } = await supabase
+    .from('vencimientos')
+    .update({ deleted_at: new Date().toISOString() })
+    .eq('id', id)
+    .eq('workspace_id', workspaceId)
+
+  if (error) throw new Error(error.message)
+
+  revalidatePath('/vencimientos')
+  redirect('/vencimientos')
+}
+
 export async function editarVencimiento(id: string, formData: FormData) {
   const supabase = await createClient()
   const workspaceId = await getWorkspaceId()
