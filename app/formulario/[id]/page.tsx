@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation'
 import { createAnonClient } from '@/lib/supabase/anon'
 import { enviarOnboarding } from './actions'
+import { SubmitButton } from '@/components/formulario/submit-button'
 
 const secciones = [
   { value: 'inicio',      label: 'Inicio / Hero' },
@@ -85,8 +86,35 @@ export default async function OnboardingPage({
               <input id="email" name="email" type="email" required placeholder="juan@ejemplo.com" className={inputClass} />
             </div>
             <div>
-              <label htmlFor="whatsapp" className={labelClass}>WhatsApp de contacto *</label>
-              <input id="whatsapp" name="whatsapp" required placeholder="+54 9 11 1234-5678" className={inputClass} />
+              <label htmlFor="whatsapp_numero" className={labelClass}>WhatsApp de contacto *</label>
+              <div className="flex gap-2">
+                <select
+                  name="whatsapp_codigo"
+                  defaultValue="+54"
+                  className="rounded-md bg-zinc-800 border border-zinc-700 px-2 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-white/20 focus:border-zinc-500 shrink-0"
+                >
+                  <option value="+54">🇦🇷 +54</option>
+                  <option value="+55">🇧🇷 +55</option>
+                  <option value="+56">🇨🇱 +56</option>
+                  <option value="+598">🇺🇾 +598</option>
+                  <option value="+595">🇵🇾 +595</option>
+                  <option value="+591">🇧🇴 +591</option>
+                  <option value="+51">🇵🇪 +51</option>
+                  <option value="+57">🇨🇴 +57</option>
+                  <option value="+58">🇻🇪 +58</option>
+                  <option value="+52">🇲🇽 +52</option>
+                  <option value="+34">🇪🇸 +34</option>
+                  <option value="+1">🇺🇸 +1</option>
+                  <option value="+44">🇬🇧 +44</option>
+                </select>
+                <input
+                  id="whatsapp_numero"
+                  name="whatsapp_numero"
+                  required
+                  placeholder="9 11 1234-5678"
+                  className={inputClass}
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -276,12 +304,7 @@ export default async function OnboardingPage({
           </label>
         </div>
 
-        <button
-          type="submit"
-          className="w-full py-3 px-6 rounded-lg bg-white text-zinc-950 font-semibold text-sm hover:bg-zinc-100 transition-colors"
-        >
-          Enviar formulario
-        </button>
+        <SubmitButton />
 
       </form>
     </div>

@@ -10,6 +10,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Progress } from '@/components/ui/progress'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { ChecklistItem } from '@/components/proyectos/checklist-item'
+import { DocumentosPanel } from '@/components/proyectos/documentos-panel'
 import { editarProyecto, agregarChecklistItem } from '../actions'
 import { ArrowLeft, CreditCard, CalendarClock, Plus } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -64,11 +65,13 @@ export default async function ProyectoDetallePage({
     { data: items },
     { data: pagos },
     { data: vencimientos },
+    { data: documentos },
   ] = await Promise.all([
     supabase.from('proyectos').select('*, clientes(id, nombre, marca, email)').eq('id', id).eq('workspace_id', workspaceId).is('deleted_at', null).single(),
     supabase.from('checklist_items').select('*').eq('proyecto_id', id).eq('workspace_id', workspaceId).is('deleted_at', null).order('orden'),
     supabase.from('pagos').select('id, monto, estado, tipo').eq('proyecto_id', id).eq('workspace_id', workspaceId).is('deleted_at', null).order('created_at', { ascending: false }),
     supabase.from('vencimientos').select('id, tipo, descripcion, fecha_vencimiento, estado, monto').eq('proyecto_id', id).eq('workspace_id', workspaceId).is('deleted_at', null).order('fecha_vencimiento', { ascending: true }),
+    supabase.from('documentos').select('id, nombre, ruta, tipo, tamaño, created_at').eq('proyecto_id', id).eq('workspace_id', workspaceId).is('deleted_at', null).order('created_at', { ascending: false }),
   ])
 
   if (!proyecto) notFound()
@@ -305,6 +308,14 @@ export default async function ProyectoDetallePage({
         </div>
 
       </div>
+
+      {/* Documentos */}
+      <DocumentosPanel
+        proyectoId={id}
+        clienteId={cliente?.id ?? null}
+        documentos={documentos ?? []}
+      />
+
     </div>
   )
 }

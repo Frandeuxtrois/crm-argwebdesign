@@ -19,7 +19,7 @@ export async function enviarOnboarding(workspaceId: string, formData: FormData) 
   const respuestas = {
     nombre:              formData.get('nombre'),
     email:               formData.get('email'),
-    whatsapp:            formData.get('whatsapp'),
+    whatsapp:            `${formData.get('whatsapp_codigo')} ${formData.get('whatsapp_numero')}`.trim(),
     marca:               formData.get('marca'),
     cliente_ideal:       formData.get('cliente_ideal'),
     diferenciacion:      formData.get('diferenciacion'),
