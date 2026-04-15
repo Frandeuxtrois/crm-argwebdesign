@@ -75,3 +75,20 @@ export async function archivarCliente(id: string) {
   revalidatePath('/clientes')
   redirect('/clientes')
 }
+
+// ─── Eliminar cliente (soft delete con deleted_at) ────────────
+export async function eliminarCliente(id: string) {
+  const supabase = await createClient()
+  const workspaceId = await getWorkspaceId()
+
+  const { error } = await supabase
+    .from('clientes')
+    .update({ deleted_at: new Date().toISOString() })
+    .eq('id', id)
+    .eq('workspace_id', workspaceId)
+
+  if (error) throw new Error(error.message)
+
+  revalidatePath('/clientes')
+  redirect('/clientes')
+}

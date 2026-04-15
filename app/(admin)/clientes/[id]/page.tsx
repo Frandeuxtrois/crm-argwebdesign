@@ -9,8 +9,8 @@ import { Textarea } from '@/components/ui/textarea'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { editarCliente, archivarCliente } from '../actions'
-import { ArrowLeft, Mail, Phone, FolderKanban, CreditCard, CalendarClock, Plus } from 'lucide-react'
+import { editarCliente, archivarCliente, eliminarCliente } from '../actions'
+import { ArrowLeft, Mail, Phone, FolderKanban, CreditCard, CalendarClock, Plus, Trash2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 function formatARS(monto: number) {
@@ -59,6 +59,7 @@ export default async function ClienteDetallePage({
 
   const editarConId = editarCliente.bind(null, id)
   const archivarConId = archivarCliente.bind(null, id)
+  const eliminarConId = eliminarCliente.bind(null, id)
 
   return (
     <div className="space-y-6">
@@ -94,6 +95,17 @@ export default async function ClienteDetallePage({
           >
             <Phone className="h-4 w-4" />
           </a>
+          <form action={eliminarConId}>
+            <Button
+              type="submit"
+              variant="ghost"
+              size="icon"
+              className="text-red-400 hover:text-red-600 hover:bg-red-50"
+              title="Eliminar cliente"
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          </form>
         </div>
       </div>
 
