@@ -190,7 +190,7 @@ export default async function OnboardingPage({
                     <span className="text-sm text-zinc-300 group-has-[:checked]:text-white transition-colors">{r.label}</span>
                   </label>
                   <input
-                    type="url"
+                    type="text"
                     name={`${r.key}_url`}
                     placeholder={r.placeholder}
                     className={inputClass}

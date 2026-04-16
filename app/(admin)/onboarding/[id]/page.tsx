@@ -21,9 +21,27 @@ const planLabel: Record<string, string> = {
 
 function Campo({ label, valor }: { label: string; valor: unknown }) {
   if (!valor || (Array.isArray(valor) && valor.length === 0)) return null
-  const texto = Array.isArray(valor) ? valor.join(', ') : String(valor)
 
-  // Si parece URL, renderizar como link
+  // Objeto plano (ej: redes_sociales { instagram: "url", ... })
+  if (typeof valor === 'object' && !Array.isArray(valor)) {
+    const entradas = Object.entries(valor as Record<string, string>).filter(([, v]) => !!v)
+    if (!entradas.length) return null
+    return (
+      <div className="space-y-1">
+        <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">{label}</p>
+        <div className="space-y-1">
+          {entradas.map(([red, url]) => (
+            <a key={red} href={url} target="_blank" rel="noopener noreferrer"
+              className="text-sm text-blue-600 hover:underline flex items-center gap-1 capitalize">
+              {red}: {url} <ExternalLink className="h-3 w-3 shrink-0" />
+            </a>
+          ))}
+        </div>
+      </div>
+    )
+  }
+
+  const texto = Array.isArray(valor) ? valor.join(', ') : String(valor)
   const esUrl = texto.startsWith('http://') || texto.startsWith('https://')
 
   return (

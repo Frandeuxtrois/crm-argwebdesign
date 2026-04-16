@@ -93,7 +93,7 @@ export default async function DashboardPage() {
           <h2 className="text-2xl font-semibold text-gray-900">Dashboard</h2>
           <p className="text-sm text-gray-500 mt-1">Resumen general</p>
         </div>
-        <Clock fechaServidor={now.toISOString()} />
+        <Clock />
       </div>
 
       {/* Fila 1: métricas operativas */}
