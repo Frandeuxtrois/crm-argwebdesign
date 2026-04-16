@@ -3,9 +3,10 @@ import { notFound } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { getWorkspaceId } from '@/lib/workspace'
 import { Badge } from '@/components/ui/badge'
-import { Button, buttonVariants } from '@/components/ui/button'
-import { procesarOnboarding } from '../actions'
-import { ArrowLeft, ExternalLink } from 'lucide-react'
+import { buttonVariants } from '@/components/ui/button'
+import { ActionButton } from '@/components/ui/action-button'
+import { procesarOnboarding, asociarOnboarding, ignorarOnboarding } from '../actions'
+import { ArrowLeft, ExternalLink, AlertCircle } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const planLabel: Record<string, string> = {
@@ -63,6 +64,23 @@ export default async function OnboardingDetallePage({
     ? (Array.isArray(entrada.clientes) ? entrada.clientes[0] : entrada.clientes) as { id: string; nombre: string; marca: string } | null
     : null
 
+  // Verificar si el email ya existe como cliente (solo si no está procesado)
+  const clienteExistente = !entrada.procesado
+    ? await supabase
+        .from('clientes')
+        .select('id, nombre, marca')
+        .eq('workspace_id', workspaceId)
+        .eq('email', r.email as string)
+        .is('deleted_at', null)
+        .maybeSingle()
+        .then(({ data }) => data)
+    : null
+
+  const asociarConId = clienteExistente
+    ? asociarOnboarding.bind(null, id, clienteExistente.id)
+    : null
+  const ignorarConId = ignorarOnboarding.bind(null, id)
+
   return (
     <div className="max-w-2xl space-y-6">
       {/* Header */}
@@ -88,12 +106,63 @@ export default async function OnboardingDetallePage({
           <Link href={`/clientes/${cliente.id}`} className={cn(buttonVariants({ variant: 'outline' }))}>
             Ver cliente
           </Link>
-        ) : (
+        ) : clienteExistente ? null : (
           <form action={procesarConId}>
-            <Button type="submit">Crear cliente y proyecto</Button>
+            <ActionButton>Crear cliente y proyecto</ActionButton>
           </form>
         )}
       </div>
+
+      {/* Aviso: cliente existente con ese email */}
+      {clienteExistente && asociarConId && (
+        <div className="bg-amber-50 border border-amber-200 rounded-lg overflow-hidden">
+          <div className="flex items-center gap-2 px-4 py-3 border-b border-amber-200">
+            <AlertCircle className="h-4 w-4 text-amber-600 shrink-0" />
+            <p className="text-sm font-semibold text-amber-900">
+              El email <span className="font-mono">{r.email as string}</span> ya existe como cliente
+            </p>
+          </div>
+
+          {/* Comparación lado a lado */}
+          <div className="grid grid-cols-2 divide-x divide-amber-200">
+            <div className="p-4 space-y-1">
+              <p className="text-xs font-semibold text-amber-600 uppercase tracking-wider mb-2">Cliente existente</p>
+              <p className="text-sm font-semibold text-gray-900">{clienteExistente.marca}</p>
+              <p className="text-sm text-gray-600">{clienteExistente.nombre}</p>
+              <Link href={`/clientes/${clienteExistente.id}`} className="text-xs text-blue-600 hover:underline inline-flex items-center gap-1 mt-1">
+                Ver cliente <ExternalLink className="h-3 w-3" />
+              </Link>
+            </div>
+            <div className="p-4 space-y-1">
+              <p className="text-xs font-semibold text-amber-600 uppercase tracking-wider mb-2">Este formulario</p>
+              <p className="text-sm font-semibold text-gray-900">{r.marca as string}</p>
+              <p className="text-sm text-gray-600">{r.nombre as string}</p>
+              <p className="text-xs text-gray-400 mt-1">
+                {new Date(entrada.created_at).toLocaleDateString('es-AR', { day: 'numeric', month: 'long', year: 'numeric' })}
+              </p>
+            </div>
+          </div>
+
+          {/* Acciones */}
+          <div className="flex items-center gap-2 px-4 py-3 border-t border-amber-200 bg-amber-100/50">
+            <form action={asociarConId}>
+              <ActionButton size="sm">
+                Asociar proyecto a {clienteExistente.marca}
+              </ActionButton>
+            </form>
+            <form action={procesarConId}>
+              <ActionButton size="sm" variant="outline">
+                Es otra persona — crear cliente nuevo
+              </ActionButton>
+            </form>
+            <form action={ignorarConId} className="ml-auto">
+              <ActionButton size="sm" variant="ghost" className="text-gray-500 text-xs">
+                Ignorar formulario
+              </ActionButton>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* Respuestas */}
       <div className="bg-white rounded-lg border divide-y">

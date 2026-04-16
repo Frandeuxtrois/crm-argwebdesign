@@ -11,8 +11,8 @@ import { Progress } from '@/components/ui/progress'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { ChecklistItem } from '@/components/proyectos/checklist-item'
 import { DocumentosPanel } from '@/components/proyectos/documentos-panel'
-import { editarProyecto, agregarChecklistItem } from '../actions'
-import { ArrowLeft, CreditCard, CalendarClock, Plus } from 'lucide-react'
+import { editarProyecto, agregarChecklistItem, eliminarProyecto } from '../actions'
+import { ArrowLeft, CreditCard, CalendarClock, Plus, Trash2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 function formatARS(monto: number) {
@@ -83,6 +83,7 @@ export default async function ProyectoDetallePage({
   const cliente = proyecto.clientes as { id: string; nombre: string; marca: string; email: string } | null
   const editarConId = editarProyecto.bind(null, id)
   const agregarItemConId = agregarChecklistItem.bind(null, id)
+  const eliminarConId = eliminarProyecto.bind(null, id)
 
   // Agrupar items por categoría
   const itemsPorCategoria = categorias.map((cat) => ({
@@ -109,6 +110,17 @@ export default async function ProyectoDetallePage({
             <p className="text-sm text-gray-500">Sin cliente</p>
           )}
         </div>
+        <form action={eliminarConId}>
+          <Button
+            type="submit"
+            variant="ghost"
+            size="icon"
+            className="text-red-400 hover:text-red-600 hover:bg-red-50"
+            title="Eliminar proyecto"
+          >
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        </form>
       </div>
 
       {/* Barra de progreso */}

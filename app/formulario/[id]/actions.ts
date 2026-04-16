@@ -34,7 +34,14 @@ export async function enviarOnboarding(workspaceId: string, formData: FormData) 
     estilo_visual:       formData.get('estilo_visual'),
     secciones:           formData.getAll('secciones'),
     textos_secciones:    formData.get('textos_secciones'),
-    redes_sociales:      formData.get('redes_sociales'),
+    redes_sociales:      (() => {
+      const obj: Record<string, string> = {}
+      for (const red of ['instagram', 'facebook', 'tiktok', 'linkedin', 'twitter', 'otros']) {
+        const url = (formData.get(`${red}_url`) as string)?.trim()
+        if (url) obj[red] = url
+      }
+      return Object.keys(obj).length > 0 ? obj : null
+    })(),
     funcionalidades:     formData.get('funcionalidades'),
     fotos_drive:         formData.get('fotos_drive'),
     testimonios:         formData.get('testimonios'),

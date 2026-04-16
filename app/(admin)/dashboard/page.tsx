@@ -4,9 +4,10 @@ import { getWorkspaceId } from '@/lib/workspace'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
 import { buttonVariants } from '@/components/ui/button'
-import { Users, FolderKanban, CreditCard, CalendarClock, ArrowRight, Link2 } from 'lucide-react'
+import { Users, FolderKanban, CreditCard, CalendarClock, ArrowRight, Link2, TrendingUp } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { CopyFormLink } from '@/components/dashboard/copy-form-link'
+import { Clock } from '@/components/dashboard/clock'
 
 function formatARS(monto: number) {
   return new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 }).format(monto)
@@ -20,11 +21,16 @@ const estadoLabel: Record<string, string> = {
   pausado:       'Pausado',
 }
 
+const MESES = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic']
+
 export default async function DashboardPage() {
   const supabase = await createClient()
   const workspaceId = await getWorkspaceId()
 
-  // Traer todos los datos en paralelo
+  const now = new Date()
+  const inicioMes = new Date(now.getFullYear(), now.getMonth(), 1).toISOString()
+  const inicioAno = new Date(now.getFullYear(), 0, 1).toISOString()
+
   const [
     { data: clientes },
     { data: proyectos },
@@ -34,35 +40,63 @@ export default async function DashboardPage() {
   ] = await Promise.all([
     supabase.from('clientes').select('id, estado').eq('workspace_id', workspaceId).is('deleted_at', null),
     supabase.from('proyectos').select('id, nombre, estado, progreso, fecha_entrega, clientes(marca)').eq('workspace_id', workspaceId).is('deleted_at', null).order('created_at', { ascending: false }),
-    supabase.from('pagos').select('id, monto, estado, fecha_emision, proyectos(nombre, clientes(marca))').eq('workspace_id', workspaceId).is('deleted_at', null).order('created_at', { ascending: false }),
+    supabase.from('pagos').select('id, monto, estado, fecha_emision, fecha_pago, proyectos(nombre, clientes(marca))').eq('workspace_id', workspaceId).is('deleted_at', null).order('created_at', { ascending: false }),
     supabase.from('vencimientos').select('id, tipo, descripcion, fecha_vencimiento, estado, clientes(marca)').eq('workspace_id', workspaceId).is('deleted_at', null).order('fecha_vencimiento', { ascending: true }),
     supabase.from('onboarding').select('id').eq('workspace_id', workspaceId).eq('procesado', false).is('deleted_at', null),
   ])
 
-  // Calcular métricas
-  const clientesActivos = clientes?.filter(c => c.estado === 'activo').length ?? 0
-  const proyectosEnCurso = proyectos?.filter(p => ['onboarding', 'en_desarrollo', 'revision'].includes(p.estado)).length ?? 0
-  const cobrosPendientes = pagos?.filter(p => p.estado === 'pendiente').reduce((s, p) => s + p.monto, 0) ?? 0
-  const hoy = Date.now()
+  // ── Métricas base ───────────────────────────────────────────
+  const clientesActivos    = clientes?.filter(c => c.estado === 'activo').length ?? 0
+  const proyectosEnCurso   = proyectos?.filter(p => ['onboarding', 'en_desarrollo', 'revision'].includes(p.estado)).length ?? 0
+  const hoy                = Date.now()
   const vencimientosProximos = vencimientos?.filter(v => {
     if (v.estado !== 'activo') return false
     const dias = Math.ceil((new Date(v.fecha_vencimiento).getTime() - hoy) / 86400000)
     return dias <= 30
   }) ?? []
-
-  // Listas recortadas para el dashboard
-  const proyectosActivos = proyectos?.filter(p => ['onboarding', 'en_desarrollo', 'revision'].includes(p.estado)).slice(0, 5) ?? []
-  const ultimosPagos = pagos?.filter(p => p.estado === 'pendiente').slice(0, 5) ?? []
   const onboardingsPendientes = onboardings?.length ?? 0
+
+  // ── Métricas financieras ────────────────────────────────────
+  const pagados = pagos?.filter(p => p.estado === 'pagado') ?? []
+
+  const cobradoMes = pagados
+    .filter(p => p.fecha_pago && p.fecha_pago >= inicioMes)
+    .reduce((s, p) => s + p.monto, 0)
+
+  const cobradoAno = pagados
+    .filter(p => p.fecha_pago && p.fecha_pago >= inicioAno)
+    .reduce((s, p) => s + p.monto, 0)
+
+  const totalPendiente = pagos?.filter(p => p.estado === 'pendiente').reduce((s, p) => s + p.monto, 0) ?? 0
+
+  // ── Últimos 6 meses (para el gráfico) ──────────────────────
+  const ultimos6: { mes: string; monto: number }[] = []
+  for (let i = 5; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1)
+    const inicio = d.toISOString().split('T')[0]
+    const fin = new Date(d.getFullYear(), d.getMonth() + 1, 1).toISOString().split('T')[0]
+    const monto = pagados
+      .filter(p => p.fecha_pago && p.fecha_pago >= inicio && p.fecha_pago < fin)
+      .reduce((s, p) => s + p.monto, 0)
+    ultimos6.push({ mes: MESES[d.getMonth()], monto })
+  }
+  const maxMonto = Math.max(...ultimos6.map(m => m.monto), 1)
+
+  // ── Listas para las tablas ──────────────────────────────────
+  const proyectosActivos = proyectos?.filter(p => ['onboarding', 'en_desarrollo', 'revision'].includes(p.estado)).slice(0, 5) ?? []
+  const ultimosPagos     = pagos?.filter(p => p.estado === 'pendiente').slice(0, 5) ?? []
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-semibold text-gray-900">Dashboard</h2>
-        <p className="text-sm text-gray-500 mt-1">Resumen general</p>
+      <div className="flex items-start justify-between">
+        <div>
+          <h2 className="text-2xl font-semibold text-gray-900">Dashboard</h2>
+          <p className="text-sm text-gray-500 mt-1">Resumen general</p>
+        </div>
+        <Clock fechaServidor={now.toISOString()} />
       </div>
 
-      {/* Cards de métricas */}
+      {/* Fila 1: métricas operativas */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <Link href="/clientes" className="bg-white rounded-lg border p-5 hover:border-gray-300 transition-colors">
           <div className="flex items-center justify-between mb-3">
@@ -80,14 +114,6 @@ export default async function DashboardPage() {
           <p className="text-3xl font-bold text-gray-900">{proyectosEnCurso}</p>
         </Link>
 
-        <Link href="/pagos" className="bg-white rounded-lg border p-5 hover:border-gray-300 transition-colors">
-          <div className="flex items-center justify-between mb-3">
-            <p className="text-sm text-gray-500">Cobros pendientes</p>
-            <CreditCard className="h-4 w-4 text-gray-400" />
-          </div>
-          <p className="text-2xl font-bold text-amber-600">{formatARS(cobrosPendientes)}</p>
-        </Link>
-
         <Link href="/vencimientos" className="bg-white rounded-lg border p-5 hover:border-gray-300 transition-colors">
           <div className="flex items-center justify-between mb-3">
             <p className="text-sm text-gray-500">Vencimientos próximos</p>
@@ -97,6 +123,61 @@ export default async function DashboardPage() {
             {vencimientosProximos.length}
           </p>
         </Link>
+
+        <Link href="/pagos" className="bg-white rounded-lg border p-5 hover:border-gray-300 transition-colors">
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-sm text-gray-500">Cobros pendientes</p>
+            <CreditCard className="h-4 w-4 text-gray-400" />
+          </div>
+          <p className="text-2xl font-bold text-amber-600">{formatARS(totalPendiente)}</p>
+        </Link>
+      </div>
+
+      {/* Fila 2: métricas financieras */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div className="bg-white rounded-lg border p-5">
+          <p className="text-sm text-gray-500 mb-1">Cobrado este mes</p>
+          <p className="text-2xl font-bold text-green-600">{formatARS(cobradoMes)}</p>
+          <p className="text-xs text-gray-400 mt-1">{MESES[now.getMonth()]} {now.getFullYear()}</p>
+        </div>
+
+        <div className="bg-white rounded-lg border p-5">
+          <p className="text-sm text-gray-500 mb-1">Cobrado este año</p>
+          <p className="text-2xl font-bold text-blue-600">{formatARS(cobradoAno)}</p>
+          <p className="text-xs text-gray-400 mt-1">Enero — {MESES[now.getMonth()]} {now.getFullYear()}</p>
+        </div>
+
+        <div className="bg-white rounded-lg border p-5">
+          <p className="text-sm text-gray-500 mb-1">Total facturado histórico</p>
+          <p className="text-2xl font-bold text-gray-900">{formatARS(pagados.reduce((s, p) => s + p.monto, 0))}</p>
+          <p className="text-xs text-gray-400 mt-1">{pagados.length} pago{pagados.length !== 1 ? 's' : ''} cobrado{pagados.length !== 1 ? 's' : ''}</p>
+        </div>
+      </div>
+
+      {/* Gráfico últimos 6 meses */}
+      <div className="bg-white rounded-lg border p-5">
+        <div className="flex items-center gap-2 mb-4">
+          <TrendingUp className="h-4 w-4 text-gray-400" />
+          <p className="text-sm font-semibold text-gray-700">Ingresos — últimos 6 meses</p>
+        </div>
+        <div className="flex items-end gap-3 h-24">
+          {ultimos6.map((m, i) => {
+            const altura = maxMonto > 0 ? Math.round((m.monto / maxMonto) * 100) : 0
+            const esMesActual = i === 5
+            return (
+              <div key={m.mes} className="flex-1 flex flex-col items-center gap-1.5">
+                <span className="text-xs text-gray-500">{m.monto > 0 ? formatARS(m.monto).replace('$\u00a0', '$').replace(/\.000$/, 'k') : ''}</span>
+                <div className="w-full flex items-end" style={{ height: '56px' }}>
+                  <div
+                    className={cn('w-full rounded-t transition-all', esMesActual ? 'bg-blue-500' : 'bg-gray-200')}
+                    style={{ height: `${Math.max(altura, m.monto > 0 ? 4 : 0)}%` }}
+                  />
+                </div>
+                <span className={cn('text-xs', esMesActual ? 'font-semibold text-gray-700' : 'text-gray-400')}>{m.mes}</span>
+              </div>
+            )
+          })}
+        </div>
       </div>
 
       {/* Link del formulario de onboarding */}
@@ -108,7 +189,7 @@ export default async function DashboardPage() {
         <CopyFormLink workspaceId={workspaceId} />
       </div>
 
-      {/* Alerta de onboardings pendientes */}
+      {/* Alerta onboardings pendientes */}
       {onboardingsPendientes > 0 && (
         <Link
           href="/onboarding"
@@ -121,6 +202,7 @@ export default async function DashboardPage() {
         </Link>
       )}
 
+      {/* Tablas */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Proyectos activos */}
         <div className="bg-white rounded-lg border">
@@ -156,7 +238,7 @@ export default async function DashboardPage() {
           )}
         </div>
 
-        {/* Panel derecho: vencimientos + cobros */}
+        {/* Panel derecho */}
         <div className="space-y-6">
           {/* Vencimientos próximos */}
           <div className="bg-white rounded-lg border">
@@ -175,10 +257,10 @@ export default async function DashboardPage() {
                     <Link key={v.id} href={`/vencimientos/${v.id}`} className="flex items-center justify-between px-5 py-3 hover:bg-gray-50 transition-colors">
                       <div>
                         <p className="text-sm font-medium text-gray-900">{cliente?.marca ?? '—'}</p>
-                        <p className="text-xs text-gray-400 capitalize">{v.tipo} {v.descripcion ? `— ${v.descripcion}` : ''}</p>
+                        <p className="text-xs text-gray-400 capitalize">{v.tipo}{v.descripcion ? ` — ${v.descripcion}` : ''}</p>
                       </div>
                       <span className={cn('text-xs font-semibold', dias < 0 ? 'text-red-500' : dias <= 7 ? 'text-red-500' : 'text-amber-500')}>
-                        {dias < 0 ? `Vencido` : dias === 0 ? 'Hoy' : `${dias}d`}
+                        {dias < 0 ? 'Vencido' : dias === 0 ? 'Hoy' : `${dias}d`}
                       </span>
                     </Link>
                   )

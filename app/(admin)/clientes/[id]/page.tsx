@@ -10,7 +10,7 @@ import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { editarCliente, archivarCliente, eliminarCliente } from '../actions'
-import { ArrowLeft, Mail, Phone, FolderKanban, CreditCard, CalendarClock, Plus, Trash2 } from 'lucide-react'
+import { ArrowLeft, Mail, Phone, FolderKanban, CreditCard, CalendarClock, Plus, Trash2, MessageCircle, Share2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 function formatARS(monto: number) {
@@ -86,15 +86,17 @@ export default async function ClienteDetallePage({
           >
             <Mail className="h-4 w-4" />
           </a>
-          <a
-            href={`https://wa.me/${cliente.whatsapp?.replace(/\D/g, '')}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className={cn(buttonVariants({ variant: 'outline', size: 'icon' }))}
-            title={cliente.whatsapp}
-          >
-            <Phone className="h-4 w-4" />
-          </a>
+          {cliente.whatsapp && (
+            <a
+              href={`https://wa.me/${cliente.whatsapp.replace(/\D/g, '')}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={cn(buttonVariants({ variant: 'outline', size: 'icon' }))}
+              title={cliente.whatsapp}
+            >
+              <Phone className="h-4 w-4" />
+            </a>
+          )}
           <form action={eliminarConId}>
             <Button
               type="submit"
@@ -166,6 +168,36 @@ export default async function ClienteDetallePage({
             <Textarea id="notas" name="notas" rows={2} defaultValue={cliente.notas ?? ''} />
           </div>
 
+          <div className="border-t pt-4">
+            <p className="text-sm font-semibold text-gray-700 mb-3">Presencia digital</p>
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-gray-400 w-20 shrink-0">Sitio web</span>
+                <Input name="sitio_web" placeholder="https://..." defaultValue={(cliente as Record<string, unknown>).sitio_web as string ?? ''} className="h-8 text-sm" />
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-gray-400 w-20 shrink-0">Instagram</span>
+                <Input name="instagram" placeholder="@usuario" defaultValue={(cliente as Record<string, unknown>).instagram as string ?? ''} className="h-8 text-sm" />
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-gray-400 w-20 shrink-0">Facebook</span>
+                <Input name="facebook" placeholder="facebook.com/..." defaultValue={(cliente as Record<string, unknown>).facebook as string ?? ''} className="h-8 text-sm" />
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-gray-400 w-20 shrink-0">TikTok</span>
+                <Input name="tiktok" placeholder="@usuario" defaultValue={(cliente as Record<string, unknown>).tiktok as string ?? ''} className="h-8 text-sm" />
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-gray-400 w-20 shrink-0">LinkedIn</span>
+                <Input name="linkedin" placeholder="linkedin.com/in/..." defaultValue={(cliente as Record<string, unknown>).linkedin as string ?? ''} className="h-8 text-sm" />
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-gray-400 w-20 shrink-0">Twitter / X</span>
+                <Input name="twitter" placeholder="@usuario" defaultValue={(cliente as Record<string, unknown>).twitter as string ?? ''} className="h-8 text-sm" />
+              </div>
+            </div>
+          </div>
+
           <div className="space-y-1.5">
             <Label htmlFor="estado">Estado</Label>
             <Select name="estado" defaultValue={cliente.estado}>
@@ -188,8 +220,84 @@ export default async function ClienteDetallePage({
           </div>
         </form>
 
-        {/* Columna derecha: proyectos, pagos, vencimientos */}
+        {/* Columna derecha: whatsapp, proyectos, pagos, vencimientos */}
         <div className="lg:col-span-3 space-y-4">
+
+          {/* WhatsApp rápido */}
+          {cliente.whatsapp && (() => {
+            const num = cliente.whatsapp.replace(/\D/g, '')
+            const wa = (msg: string) => `https://wa.me/${num}?text=${encodeURIComponent(msg)}`
+            const plantillas = [
+              { emoji: '👋', label: 'Bienvenida',          msg: `Hola ${cliente.nombre}! Te damos la bienvenida como cliente de Argentina Webdesign. Estamos listos para comenzar a trabajar en ${cliente.marca}. Cualquier consulta, acá estamos.` },
+              { emoji: '💰', label: 'Cobro pendiente',     msg: `Hola ${cliente.nombre}! Te recordamos que tenés un pago pendiente por el proyecto ${cliente.marca}. Cuando puedas, avisanos para coordinar. Gracias!` },
+              { emoji: '📅', label: 'Vencimiento próximo', msg: `Hola ${cliente.nombre}! Te avisamos que se acerca un vencimiento importante para ${cliente.marca}. Coordinemos con tiempo para renovarlo sin inconvenientes.` },
+              { emoji: '🎉', label: 'Entrega lista',       msg: `Hola ${cliente.nombre}! Ya está lista la entrega del proyecto ${cliente.marca}. Quedamos a tu disposición para revisarlo juntos y hacer los ajustes finales.` },
+              { emoji: '⭐', label: 'Pedir feedback',      msg: `Hola ${cliente.nombre}! Queremos saber cómo te fue con ${cliente.marca}. Tu opinión es muy importante para nosotros. Cuando tengas un momento, nos contás?` },
+              { emoji: '💬', label: 'Contacto genérico',  msg: `Hola ${cliente.nombre}! Te escribo desde Argentina Webdesign.` },
+            ]
+            return (
+              <div className="bg-white rounded-lg border overflow-hidden">
+                <div className="flex items-center gap-2 px-4 py-3 border-b">
+                  <MessageCircle className="h-4 w-4 text-green-600" />
+                  <span className="text-sm font-semibold text-gray-700">WhatsApp rápido</span>
+                </div>
+                <div className="grid grid-cols-2 gap-1 p-2">
+                  {plantillas.map((p) => (
+                    <a
+                      key={p.label}
+                      href={wa(p.msg)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-2 px-3 py-2 rounded-md text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                    >
+                      <span className="text-base leading-none">{p.emoji}</span>
+                      {p.label}
+                    </a>
+                  ))}
+                </div>
+              </div>
+            )
+          })()}
+
+          {/* Redes sociales */}
+          {(() => {
+            const c = cliente as Record<string, unknown>
+            const redes = [
+              { label: 'Sitio web',   key: 'sitio_web',  prefijo: '' },
+              { label: 'Instagram',   key: 'instagram',  prefijo: 'https://instagram.com/' },
+              { label: 'Facebook',    key: 'facebook',   prefijo: 'https://facebook.com/' },
+              { label: 'TikTok',      key: 'tiktok',     prefijo: 'https://tiktok.com/@' },
+              { label: 'LinkedIn',    key: 'linkedin',   prefijo: 'https://linkedin.com/in/' },
+              { label: 'Twitter / X', key: 'twitter',    prefijo: 'https://x.com/' },
+            ].filter(r => !!c[r.key])
+            if (!redes.length) return null
+            return (
+              <div className="bg-white rounded-lg border overflow-hidden">
+                <div className="flex items-center gap-2 px-4 py-3 border-b">
+                  <Share2 className="h-4 w-4 text-gray-400" />
+                  <span className="text-sm font-semibold text-gray-700">Redes sociales</span>
+                </div>
+                <div className="divide-y">
+                  {redes.map(r => {
+                    const valor = c[r.key] as string
+                    const href = valor.startsWith('http') ? valor : `${r.prefijo}${valor.replace(/^@/, '')}`
+                    return (
+                      <a
+                        key={r.key}
+                        href={href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-between px-4 py-2.5 hover:bg-gray-50 transition-colors"
+                      >
+                        <span className="text-xs text-gray-500">{r.label}</span>
+                        <span className="text-sm text-blue-600 hover:underline truncate max-w-[180px] text-right">{valor}</span>
+                      </a>
+                    )
+                  })}
+                </div>
+              </div>
+            )
+          })()}
 
           {/* Proyectos */}
           <div className="bg-white rounded-lg border overflow-hidden">

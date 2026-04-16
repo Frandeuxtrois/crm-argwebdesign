@@ -44,6 +44,12 @@ export async function editarCliente(id: string, formData: FormData) {
     datos_fiscales:      formData.get('datos_fiscales') as string || null,
     notas:               formData.get('notas') as string || null,
     estado:              formData.get('estado') as string,
+    sitio_web:           formData.get('sitio_web') as string || null,
+    instagram:           formData.get('instagram') as string || null,
+    facebook:            formData.get('facebook') as string || null,
+    tiktok:              formData.get('tiktok') as string || null,
+    linkedin:            formData.get('linkedin') as string || null,
+    twitter:             formData.get('twitter') as string || null,
   }
 
   const { error } = await supabase

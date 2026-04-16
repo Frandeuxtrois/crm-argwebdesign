@@ -59,6 +59,23 @@ export async function editarProyecto(id: string, formData: FormData) {
   revalidatePath('/proyectos')
 }
 
+// ─── Eliminar proyecto (soft delete) ────────────────────────
+export async function eliminarProyecto(id: string) {
+  const supabase = await createClient()
+  const workspaceId = await getWorkspaceId()
+
+  const { error } = await supabase
+    .from('proyectos')
+    .update({ deleted_at: new Date().toISOString() })
+    .eq('id', id)
+    .eq('workspace_id', workspaceId)
+
+  if (error) throw new Error(error.message)
+
+  revalidatePath('/proyectos')
+  redirect('/proyectos')
+}
+
 // ─── Agregar item al checklist ───────────────────────────────
 export async function agregarChecklistItem(proyectoId: string, formData: FormData) {
   const supabase = await createClient()
