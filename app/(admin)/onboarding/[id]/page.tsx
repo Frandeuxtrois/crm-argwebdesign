@@ -31,10 +31,13 @@ function Campo({ label, valor }: { label: string; valor: unknown }) {
         <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">{label}</p>
         <div className="space-y-1">
           {entradas.map(([red, url]) => (
-            <a key={red} href={url} target="_blank" rel="noopener noreferrer"
-              className="text-sm text-blue-600 hover:underline flex items-center gap-1 capitalize">
-              {red}: {url} <ExternalLink className="h-3 w-3 shrink-0" />
-            </a>
+            <div key={red} className="flex items-center gap-1.5 text-sm">
+              <span className="text-gray-500 capitalize w-20 shrink-0">{red}:</span>
+              <a href={url.startsWith('http') ? url : `https://${url}`} target="_blank" rel="noopener noreferrer"
+                className="text-blue-600 hover:underline flex items-center gap-1 truncate">
+                {url} <ExternalLink className="h-3 w-3 shrink-0" />
+              </a>
+            </div>
           ))}
         </div>
       </div>
