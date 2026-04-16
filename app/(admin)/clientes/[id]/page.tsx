@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { editarCliente, archivarCliente, eliminarCliente } from '../actions'
+import { ActionButton } from '@/components/ui/action-button'
 import { ArrowLeft, Mail, Phone, FolderKanban, CreditCard, CalendarClock, Plus, Trash2, MessageCircle, Share2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -216,7 +217,7 @@ export default async function ClienteDetallePage({
                 Archivar
               </Button>
             )}
-            <Button type="submit" className="ml-auto">Guardar</Button>
+            <ActionButton className="ml-auto">Guardar</ActionButton>
           </div>
         </form>
 

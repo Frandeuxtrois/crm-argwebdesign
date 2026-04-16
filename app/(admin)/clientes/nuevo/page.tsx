@@ -1,5 +1,6 @@
 import Link from 'next/link'
-import { Button, buttonVariants } from '@/components/ui/button'
+import { buttonVariants } from '@/components/ui/button'
+import { ActionButton } from '@/components/ui/action-button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
@@ -73,7 +74,7 @@ export default function NuevoClientePage() {
           <Link href="/clientes" className={cn(buttonVariants({ variant: 'outline' }))}>
             Cancelar
           </Link>
-          <Button type="submit">Guardar cliente</Button>
+          <ActionButton>Guardar cliente</ActionButton>
         </div>
       </form>
     </div>

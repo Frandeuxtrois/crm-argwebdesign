@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { getWorkspaceId } from '@/lib/workspace'
-import { Button } from '@/components/ui/button'
+import { ActionButton } from '@/components/ui/action-button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { guardarConfiguracion } from './actions'
@@ -47,7 +47,7 @@ export default async function ConfiguracionPage() {
         </div>
 
         <div className="flex justify-end pt-2">
-          <Button type="submit">Guardar cambios</Button>
+          <ActionButton>Guardar cambios</ActionButton>
         </div>
       </form>
 

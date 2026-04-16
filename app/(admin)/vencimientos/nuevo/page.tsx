@@ -1,7 +1,8 @@
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { getWorkspaceId } from '@/lib/workspace'
-import { Button, buttonVariants } from '@/components/ui/button'
+import { buttonVariants } from '@/components/ui/button'
+import { ActionButton } from '@/components/ui/action-button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
@@ -80,7 +81,7 @@ export default async function NuevoVencimientoPage() {
 
         <div className="flex justify-end gap-3 pt-2">
           <Link href="/vencimientos" className={cn(buttonVariants({ variant: 'outline' }))}>Cancelar</Link>
-          <Button type="submit">Guardar</Button>
+          <ActionButton>Guardar</ActionButton>
         </div>
       </form>
     </div>

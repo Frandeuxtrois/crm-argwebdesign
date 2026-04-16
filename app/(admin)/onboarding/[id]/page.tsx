@@ -80,6 +80,19 @@ export default async function OnboardingDetallePage({
   if (!entrada) notFound()
 
   const r = entrada.respuestas as Record<string, unknown>
+
+  // Signed URLs para archivos subidos directamente
+  const fotosRutas = r.fotos_archivos as string[] | null
+  const fotosArchivos: { nombre: string; url: string }[] = []
+  if (fotosRutas && fotosRutas.length > 0) {
+    for (const ruta of fotosRutas) {
+      const { data } = await supabase.storage.from('documentos').createSignedUrl(ruta, 3600)
+      if (data?.signedUrl) {
+        fotosArchivos.push({ nombre: ruta.split('/').pop() ?? ruta, url: data.signedUrl })
+      }
+    }
+  }
+
   const procesarConId = procesarOnboarding.bind(null, id)
   const cliente = entrada.procesado
     ? (Array.isArray(entrada.clientes) ? entrada.clientes[0] : entrada.clientes) as { id: string; nombre: string; marca: string } | null
@@ -224,6 +237,25 @@ export default async function OnboardingDetallePage({
           <Campo label="Textos" valor={r.textos_secciones} />
           <Campo label="Referencias web" valor={r.referencias_webs} />
           <Campo label="Fotos (Drive)" valor={r.fotos_drive} />
+          {fotosArchivos.length > 0 && (
+            <div className="space-y-1">
+              <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">Archivos subidos</p>
+              <div className="flex flex-wrap gap-2">
+                {fotosArchivos.map((f) => (
+                  <a
+                    key={f.url}
+                    href={f.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-1.5 text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 px-2.5 py-1.5 rounded-md transition-colors"
+                  >
+                    <ExternalLink className="h-3 w-3 shrink-0" />
+                    {f.nombre}
+                  </a>
+                ))}
+              </div>
+            </div>
+          )}
           <Campo label="Testimonios" valor={r.testimonios} />
           <Campo label="Funcionalidades" valor={r.funcionalidades} />
           <Campo label="Comentarios" valor={r.comentarios} />

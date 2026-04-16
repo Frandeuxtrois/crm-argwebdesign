@@ -16,6 +16,18 @@ export async function enviarOnboarding(workspaceId: string, formData: FormData) 
 
   if (!workspace) throw new Error('Formulario no disponible.')
 
+  // Subir archivos a Supabase Storage
+  const archivos = formData.getAll('fotos_archivos') as File[]
+  const fotosArchivos: string[] = []
+  for (const archivo of archivos) {
+    if (!archivo || archivo.size === 0) continue
+    const path = `onboarding/${workspaceId}/${Date.now()}/${archivo.name}`
+    const { error: uploadError } = await supabase.storage
+      .from('documentos')
+      .upload(path, archivo, { contentType: archivo.type, upsert: false })
+    if (!uploadError) fotosArchivos.push(path)
+  }
+
   const respuestas = {
     nombre:              formData.get('nombre'),
     email:               formData.get('email'),
@@ -47,6 +59,7 @@ export async function enviarOnboarding(workspaceId: string, formData: FormData) 
     testimonios:         formData.get('testimonios'),
     comentarios:         formData.get('comentarios'),
     autoriza_portfolio:  formData.get('autoriza_portfolio'),
+    fotos_archivos:      fotosArchivos.length > 0 ? fotosArchivos : null,
   }
 
   const { error } = await supabase

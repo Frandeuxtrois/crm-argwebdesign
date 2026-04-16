@@ -99,7 +99,7 @@ export default async function OnboardingPage({
         </p>
       </div>
 
-      <form action={action} className="space-y-6">
+      <form action={action} encType="multipart/form-data" className="space-y-6">
 
         {/* 1. Datos de contacto */}
         <div className={sectionClass}>
@@ -282,9 +282,39 @@ export default async function OnboardingPage({
             <textarea id="referencias_webs" name="referencias_webs" rows={3} placeholder="https://..." className={inputClass} />
           </div>
 
-          <div>
-            <label htmlFor="fotos_drive" className={labelClass}>Link de Drive con fotos/imágenes del negocio *</label>
-            <input id="fotos_drive" name="fotos_drive" required placeholder="https://drive.google.com/..." className={inputClass} />
+          <div className="space-y-3">
+            <div>
+              <label htmlFor="fotos_drive" className={labelClass}>Link de Drive con fotos/imágenes del negocio</label>
+              <input id="fotos_drive" name="fotos_drive" placeholder="https://drive.google.com/..." className={inputClass} />
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="flex-1 h-px bg-zinc-700" />
+              <span className="text-xs text-zinc-500">o subí los archivos directo</span>
+              <div className="flex-1 h-px bg-zinc-700" />
+            </div>
+            <div>
+              <label htmlFor="fotos_archivos" className={labelClass}>Subir fotos / archivos</label>
+              <label
+                htmlFor="fotos_archivos"
+                className="flex flex-col items-center justify-center gap-2 w-full rounded-md border-2 border-dashed border-zinc-700 hover:border-zinc-500 px-4 py-6 cursor-pointer transition-colors group"
+              >
+                <svg className="w-8 h-8 text-zinc-600 group-hover:text-zinc-400 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+                </svg>
+                <span className="text-sm text-zinc-400 group-hover:text-zinc-200 transition-colors text-center">
+                  Hacé click para elegir archivos<br />
+                  <span className="text-xs text-zinc-600">JPG, PNG, PDF, DOC — múltiples archivos</span>
+                </span>
+                <input
+                  id="fotos_archivos"
+                  name="fotos_archivos"
+                  type="file"
+                  multiple
+                  accept="image/*,.pdf,.doc,.docx"
+                  className="sr-only"
+                />
+              </label>
+            </div>
           </div>
 
           <div>

@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { ChecklistItem } from '@/components/proyectos/checklist-item'
 import { DocumentosPanel } from '@/components/proyectos/documentos-panel'
 import { editarProyecto, agregarChecklistItem, eliminarProyecto } from '../actions'
+import { ActionButton } from '@/components/ui/action-button'
 import { ArrowLeft, CreditCard, CalendarClock, Plus, Trash2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -202,7 +203,7 @@ export default async function ProyectoDetallePage({
             <Textarea id="notas" name="notas" rows={3} defaultValue={proyecto.notas ?? ''} />
           </div>
 
-          <Button type="submit" className="w-full">Guardar cambios</Button>
+          <ActionButton className="w-full">Guardar cambios</ActionButton>
         </form>
 
         {/* Checklist */}
