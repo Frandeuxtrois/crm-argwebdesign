@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation'
 import { createAnonClient } from '@/lib/supabase/anon'
 import { enviarOnboarding } from './actions'
 import { SubmitButton } from '@/components/formulario/submit-button'
+import { FileInput } from '@/components/formulario/file-input'
 
 const secciones = [
   { value: 'inicio',      label: 'Inicio / Hero' },
@@ -293,27 +294,8 @@ export default async function OnboardingPage({
               <div className="flex-1 h-px bg-zinc-700" />
             </div>
             <div>
-              <label htmlFor="fotos_archivos" className={labelClass}>Subir fotos / archivos</label>
-              <label
-                htmlFor="fotos_archivos"
-                className="flex flex-col items-center justify-center gap-2 w-full rounded-md border-2 border-dashed border-zinc-700 hover:border-zinc-500 px-4 py-6 cursor-pointer transition-colors group"
-              >
-                <svg className="w-8 h-8 text-zinc-600 group-hover:text-zinc-400 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
-                </svg>
-                <span className="text-sm text-zinc-400 group-hover:text-zinc-200 transition-colors text-center">
-                  Hacé click para elegir archivos<br />
-                  <span className="text-xs text-zinc-600">JPG, PNG, PDF, DOC — múltiples archivos</span>
-                </span>
-                <input
-                  id="fotos_archivos"
-                  name="fotos_archivos"
-                  type="file"
-                  multiple
-                  accept="image/*,.pdf,.doc,.docx"
-                  className="sr-only"
-                />
-              </label>
+              <label className={labelClass}>Subir fotos / archivos</label>
+              <FileInput />
             </div>
           </div>
 

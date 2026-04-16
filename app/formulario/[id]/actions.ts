@@ -21,7 +21,10 @@ export async function enviarOnboarding(workspaceId: string, formData: FormData) 
   const fotosArchivos: string[] = []
   for (const archivo of archivos) {
     if (!archivo || archivo.size === 0) continue
-    const path = `onboarding/${workspaceId}/${Date.now()}/${archivo.name}`
+    const nombreSanitizado = archivo.name
+      .normalize('NFD').replace(/[\u0300-\u036f]/g, '')  // quita acentos
+      .replace(/[^a-zA-Z0-9._-]/g, '_')                 // reemplaza caracteres raros
+    const path = `onboarding/${workspaceId}/${Date.now()}/${nombreSanitizado}`
     const { error: uploadError } = await supabase.storage
       .from('documentos')
       .upload(path, archivo, { contentType: archivo.type, upsert: false })
