@@ -20,20 +20,17 @@ export function Header({ userEmail }: HeaderProps) {
     router.refresh()
   }
 
-  // Obtener iniciales del email para el avatar
   const initials = userEmail.slice(0, 2).toUpperCase()
 
   return (
-    <header className="h-14 border-b bg-white flex items-center justify-between px-6">
-      {/* Lado izquierdo — vacío por ahora, aquí irá el breadcrumb */}
+    <header className="h-14 border-b bg-white dark:bg-gray-900 dark:border-gray-800 flex items-center justify-between px-6 transition-colors">
       <div />
 
-      {/* Lado derecho — usuario + logout */}
       <div className="flex items-center gap-3">
         <Avatar className="h-8 w-8">
-          <AvatarFallback className="text-xs bg-gray-100">{initials}</AvatarFallback>
+          <AvatarFallback className="text-xs bg-gray-100 dark:bg-gray-700 dark:text-gray-200">{initials}</AvatarFallback>
         </Avatar>
-        <span className="text-sm text-gray-600 hidden sm:block">{userEmail}</span>
+        <span className="text-sm text-gray-600 dark:text-gray-400 hidden sm:block">{userEmail}</span>
         <Button
           variant="ghost"
           size="icon"

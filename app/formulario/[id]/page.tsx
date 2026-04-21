@@ -36,10 +36,10 @@ const redes = [
   { key: 'otros',     label: 'Otros',     placeholder: 'https://...' },
 ]
 
-const inputClass = "w-full rounded-md bg-zinc-800 border border-zinc-700 px-3 py-2 text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-white/20 focus:border-zinc-500"
-const labelClass = "block text-sm font-medium text-zinc-300 mb-1.5"
-const sectionClass = "space-y-5 bg-zinc-900 rounded-xl p-6 border border-zinc-800"
-const sectionTitleClass = "text-base font-semibold text-white mb-4 pb-3 border-b border-zinc-800"
+const inputClass = "w-full rounded-md bg-white/5 border border-white/10 px-3 py-2 text-base text-white placeholder:text-zinc-500 focus:outline-none focus:ring-1 focus:ring-white/20 focus:border-white/20"
+const labelClass = "block text-base font-medium text-zinc-300 mb-1.5"
+const sectionClass = "space-y-5 rounded-xl p-6 border border-white/8 backdrop-blur-md"
+const sectionTitleClass = "text-lg font-semibold text-white mb-4 pb-3 border-b border-white/10"
 
 // Radio personalizado: aro blanco + punto central al seleccionar
 function RadioOption({ name, value, label, required }: { name: string; value: string; label: string; required?: boolean }) {
@@ -91,16 +91,16 @@ export default async function OnboardingPage({
   return (
     <div className="space-y-8">
       {/* Intro */}
-      <div className="space-y-2">
-        <h1 className="text-2xl font-bold text-white">Inicio de Proyecto Web</h1>
-        <p className="text-zinc-400 text-sm leading-relaxed">
+      <div className="space-y-2 text-center">
+        <h1 className="text-3xl font-bold text-white">Inicio de Proyecto Web</h1>
+        <p className="text-zinc-400 text-base leading-relaxed">
           ¡Hola! Qué bueno que decidiste dar el paso para digitalizar tu negocio.
           Para cumplir con los plazos de entrega y que el diseño quede perfecto,
           completá este formulario con la mayor precisión posible.
         </p>
       </div>
 
-      <form action={action} encType="multipart/form-data" className="space-y-6">
+      <form action={action} className="space-y-6">
 
         {/* 1. Datos de contacto */}
         <div className={sectionClass}>
