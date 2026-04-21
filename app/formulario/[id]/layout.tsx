@@ -13,7 +13,7 @@ export default function OnboardingLayout({ children }: { children: React.ReactNo
             src="/logo.png"
             alt="Argentina Webdesign"
             width={160}
-            height={40}
+            height={160}
             className="h-10 w-auto object-contain"
             priority
           />

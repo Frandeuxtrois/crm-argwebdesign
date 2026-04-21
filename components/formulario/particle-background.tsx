@@ -5,7 +5,7 @@ import { useEffect, useRef } from 'react'
 const PARTICLE_COLOR = '#888888'
 const MAX_DISTANCE = 120
 const SPEED = 0.5
-const DENSITY = 1800
+const DENSITY = 4000
 
 export function ParticleBackground() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
