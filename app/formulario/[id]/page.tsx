@@ -96,7 +96,7 @@ export default async function OnboardingPage({
         <p className="text-zinc-400 text-base leading-relaxed">
           ¡Hola! Qué bueno que decidiste dar el paso para digitalizar tu negocio.
           Para cumplir con los plazos de entrega y que el diseño quede perfecto,
-          completá este formulario con la mayor precisión posible.
+          llená este formulario lo más completo posible.
         </p>
       </div>
 
@@ -167,7 +167,7 @@ export default async function OnboardingPage({
 
           <div>
             <label htmlFor="cliente_ideal" className={labelClass}>¿Quién es tu cliente ideal? (a quién le vendés) *</label>
-            <textarea id="cliente_ideal" name="cliente_ideal" required rows={3} placeholder="Ej: mujeres de 25-45 años que buscan ropa sustentable..." className={inputClass} />
+            <textarea id="cliente_ideal" name="cliente_ideal" required rows={3} placeholder="Ej: Describí brevemente a tu cliente ideal..." className={inputClass} />
           </div>
 
           <div>
@@ -232,7 +232,7 @@ export default async function OnboardingPage({
           </div>
 
           <div>
-            <p className={labelClass}>¿Tenés logo profesional? *</p>
+            <p className={labelClass}>¿Tenés logo profesional? (Formatos preferidos: .AI, .SVG, .PNG sin fondo o .PDF) *</p>
             <div className="space-y-2">
               <RadioOption name="tiene_logo" value="si" label="Sí, lo voy a subir a la carpeta de Drive." required />
               <RadioOption name="tiene_logo" value="no" label="No, necesito un logo básico (consultar costo extra)." />
@@ -274,7 +274,7 @@ export default async function OnboardingPage({
           </div>
 
           <div>
-            <label htmlFor="textos_secciones" className={labelClass}>Textos de cada sección</label>
+            <label htmlFor="textos_secciones" className={labelClass}>Textos de cada sección. Si no tenés los textos, ¿querés que usemos textos de relleno o preferís contratar el servicio de redacción?</label>
             <textarea id="textos_secciones" name="textos_secciones" rows={4} placeholder="Si ya tenés los textos redactados, pegálos acá..." className={inputClass} />
           </div>
 
